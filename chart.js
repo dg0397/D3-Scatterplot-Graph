@@ -8,11 +8,12 @@ async function drawScatterplotGraph(){
     //Setting Accesors functions
 
 
-    const formatYear = d3.timeFormat("%Y");
-    const formatTime = d3.timeFormat("");
-    const xAccessor = d => formatYear(d.Year)
-    const yAccessor = d => formatTime(d.Time)
+    //const formatYear = d3.timeFormat("%Y");
+    const dateParser = d3.timeFormat("%X");
+    const xAccessor = d => d.Year
+    const yAccessor = d => ned.Time
     console.log(dataset[0])
+    console.log(dataset[0].Time)
     console.log(yAccessor(dataset[0]))
 
     //2) Create Chart Dimensions
@@ -59,7 +60,7 @@ async function drawScatterplotGraph(){
                         .nice();
     
 
-    const xScale = d3.scaleTime()
+    const xScale = d3.scaleLinear()
                         .domain(d3.extent(dataset,xAccessor)) 
                         .range([0,dimensions.boundedWidth])
                         .nice();
@@ -74,6 +75,43 @@ async function drawScatterplotGraph(){
                         .attr('cx',(d)=>xScale(xAccessor(d)))
                         .attr('cy',(d)=>yScale(yAccessor(d)))
                         .attr('r',5)
+                        .attr('class','dot')
+                        .attr("data-xvalue",d => xAccessor(d) )
+                        .attr("data-yvalue",d => yAccessor(d) )
                         //.attr("fill", d => colorScale(colorAccessor(d)))
+    
+     //6)Draw Peripherals
+    //Setting axis 
+    
+    const xAxisGenerator = d3.axisBottom()
+                                .scale(xScale)
+
+    const yAxisGenerator = d3.axisLeft()
+                                .scale(yScale)
+    //Adding X axis 
+    const xAxis = bounds.append("g")
+                        .attr("id","x-axis")
+                        .style("transform", `translateY(${dimensions.boundedHeight}px)`)
+                        .call(xAxisGenerator)
+
+    //const xAxisLabel = xAxis.append("text")
+    //                        .attr("x", dimensions.boundedWidth / 2)
+    //                        .attr("y", dimensions.margin.bottom - 10)
+    //                        .attr("fill", "black")
+    //                        .style("font-size", "1.4em")
+    //                        .html("Dew point (&deg;F)");
+    //Adding Y axis 
+    const yAxis = bounds.append("g")
+                        .attr("id","y-axis")
+                        .call(yAxisGenerator)
+
+    //const yAxisLabel = yAxis.append("text")
+    //                        .attr("x", -dimensions.boundedHeight / 2)
+    ////                        .attr("y", -dimensions.margin.left + 20)
+    ////                        .attr("fill", "black")
+    ////                        .style("font-size", "1.4em")
+    ////                        .text("Relative humidity")
+      //                      .style("transform", "rotate(-90deg)")
+      //                      .style("text-anchor", "middle");
 }
 drawScatterplotGraph()

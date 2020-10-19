@@ -11,7 +11,7 @@ async function drawScatterplotGraph(){
     //const formatYear = d3.timeFormat("%Y");
     const dateParser = d3.timeFormat("%X");
     const xAccessor = d => d.Year
-    const yAccessor = d => ned.Time
+    const yAccessor = d => new Date(d.Seconds * 1000)
     console.log(dataset[0])
     console.log(dataset[0].Time)
     console.log(yAccessor(dataset[0]))
@@ -67,17 +67,22 @@ async function drawScatterplotGraph(){
 
     //5) Draw Data
 
+    //selecting tooltip 
+
+    const tooltip = d3.select('#tooltip');
+
+
     //drawing circles 
-    const dots = bounds.selectAll("circle")
-                        .data(dataset)
-                        .enter()
-                        .append("circle")
-                        .attr('cx',(d)=>xScale(xAccessor(d)))
-                        .attr('cy',(d)=>yScale(yAccessor(d)))
-                        .attr('r',5)
-                        .attr('class','dot')
-                        .attr("data-xvalue",d => xAccessor(d) )
-                        .attr("data-yvalue",d => yAccessor(d) )
+    const dots  =  bounds.selectAll('circle')
+                            .data(dataset)
+                            .enter()
+                            .append("circle")
+                            .attr('cx',(d)=>xScale(xAccessor(d)))
+                            .attr('cy',(d)=>yScale(yAccessor(d)))
+                            .attr('r',5)
+                            .attr('class','dot')
+                            .attr("data-xvalue",d => xAccessor(d) )
+                            .attr("data-yvalue",d => yAccessor(d) )
                         //.attr("fill", d => colorScale(colorAccessor(d)))
     
      //6)Draw Peripherals
@@ -85,9 +90,11 @@ async function drawScatterplotGraph(){
     
     const xAxisGenerator = d3.axisBottom()
                                 .scale(xScale)
+                                .tickFormat(d3.format("d"))
 
     const yAxisGenerator = d3.axisLeft()
                                 .scale(yScale)
+                                .tickFormat(d3.timeFormat("%M:%S"))
     //Adding X axis 
     const xAxis = bounds.append("g")
                         .attr("id","x-axis")
@@ -105,13 +112,13 @@ async function drawScatterplotGraph(){
                         .attr("id","y-axis")
                         .call(yAxisGenerator)
 
-    //const yAxisLabel = yAxis.append("text")
-    //                        .attr("x", -dimensions.boundedHeight / 2)
-    ////                        .attr("y", -dimensions.margin.left + 20)
-    ////                        .attr("fill", "black")
-    ////                        .style("font-size", "1.4em")
-    ////                        .text("Relative humidity")
-      //                      .style("transform", "rotate(-90deg)")
-      //                      .style("text-anchor", "middle");
+    const yAxisLabel = yAxis.append("text")
+                            .attr("x", -dimensions.boundedHeight / 2)
+                            .attr("y", -dimensions.margin.left + 20)
+                            .attr("fill", "black")
+                            .style("font-size", "1.4em")
+                            .text("Time in minutes")
+                            .style("transform", "rotate(-90deg)")
+                            .style("text-anchor", "middle");
 }
 drawScatterplotGraph()

@@ -75,6 +75,10 @@ async function drawScatterplotGraph(){
 
     const tooltip = d3.select('#tooltip');
 
+    //setting transition 
+
+    const updateTransition = d3.transition().duration(1000);
+
 
     //drawing circles 
     const dots  =  bounds.selectAll('circle')
@@ -82,13 +86,19 @@ async function drawScatterplotGraph(){
                             .enter()
                             .append("circle")
                             .attr('cx',(d)=>xScale(xAccessor(d)))
-                            .attr('cy',(d)=>yScale(yAccessor(d)))
-                            .attr('r',5)
+                            .attr('cy',dimensions.boundedHeight)
+                            .attr('r',1)
                             .attr('class','dot')
                             .attr("data-xvalue",d => xAccessor(d) )
                             .attr("data-yvalue",d => yAccessor(d) )
-                            .attr("fill", d => colorScale(colorAccessor(d)))
-    
+                            .attr("fill", "#3c1d3a")
+    //adding transition to dots
+
+    dots.transition(updateTransition)
+        .attr('cy',(d)=>yScale(yAccessor(d)))
+        .attr('r',5)
+        .attr("fill", d => colorScale(colorAccessor(d)))
+
      //6)Draw Peripherals
     //Setting axis 
     
@@ -136,8 +146,6 @@ async function drawScatterplotGraph(){
     function onMouseEnter(datum,index){
         const x = xScale(xAccessor(index)) + dimensions.margin.left;
         const y = yScale(yAccessor(index)) + dimensions.margin.top;
-
-        console.log({x,y})
 
         tooltip.attr("data-year",index.Year)
                 .style('opacity',1)

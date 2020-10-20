@@ -9,10 +9,10 @@ async function drawScatterplotGraph(){
 
 
     //const formatYear = d3.timeFormat("%Y");
-    const dateParser = d3.timeFormat("%X");
     const xAccessor = d => d.Year
     const yAccessor = d => new Date(d.Seconds * 1000)
-    console.log(dataset[0])
+    const colorAccessor = d => d.Doping ? 1 : 0
+    console.log(dataset)
     console.log(dataset[0].Time)
     console.log(yAccessor(dataset[0]))
 
@@ -24,7 +24,7 @@ async function drawScatterplotGraph(){
         margin: {
             top: 30,
             right: 30,
-            bottom: 30,
+            bottom: 60,
             left: 60,
         },
     }
@@ -65,6 +65,10 @@ async function drawScatterplotGraph(){
                         .range([0,dimensions.boundedWidth])
                         .nice();
 
+    const colorScale = d3.scaleLinear()
+                            .domain(d3.extent(dataset,colorAccessor))
+                            .range(["#f45d51", "#942246"])
+
     //5) Draw Data
 
     //selecting tooltip 
@@ -83,7 +87,7 @@ async function drawScatterplotGraph(){
                             .attr('class','dot')
                             .attr("data-xvalue",d => xAccessor(d) )
                             .attr("data-yvalue",d => yAccessor(d) )
-                        //.attr("fill", d => colorScale(colorAccessor(d)))
+                            .attr("fill", d => colorScale(colorAccessor(d)))
     
      //6)Draw Peripherals
     //Setting axis 
@@ -101,12 +105,14 @@ async function drawScatterplotGraph(){
                         .style("transform", `translateY(${dimensions.boundedHeight}px)`)
                         .call(xAxisGenerator)
 
-    //const xAxisLabel = xAxis.append("text")
-    //                        .attr("x", dimensions.boundedWidth / 2)
-    //                        .attr("y", dimensions.margin.bottom - 10)
-    //                        .attr("fill", "black")
-    //                        .style("font-size", "1.4em")
-    //                        .html("Dew point (&deg;F)");
+    const xAxisLabel = xAxis.append("text")
+                            .attr("x", dimensions.boundedWidth)
+                            .attr("y", dimensions.margin.bottom - 10)
+                            .attr("fill", "black")
+                            .style("font-size", "1.4em")
+                            .style("font-style", "italic")
+                            .html("Year");
+
     //Adding Y axis 
     const yAxis = bounds.append("g")
                         .attr("id","y-axis")
@@ -118,7 +124,35 @@ async function drawScatterplotGraph(){
                             .attr("fill", "black")
                             .style("font-size", "1.4em")
                             .text("Time in minutes")
+                            .style("font-style", "italic")
                             .style("transform", "rotate(-90deg)")
                             .style("text-anchor", "middle");
+
+    //7) Set up Interactions
+
+    dots.on("mouseenter", onMouseEnter)
+        .on("mouseleave", onMouseLeave)
+
+    function onMouseEnter(datum,index){
+        const x = xScale(xAccessor(index)) + dimensions.margin.left;
+        const y = yScale(yAccessor(index)) + dimensions.margin.top;
+
+        console.log({x,y})
+
+        tooltip.attr("data-year",index.Year)
+                .style('opacity',1)
+                .style("transform",`translate(calc(-50% + ${x}px) , calc(-118% + ${y}px) )`)
+
+
+        tooltip.select("#name")
+                .text(`${index.Name}: ${index.Nationality}`);
+
+        tooltip.select("#time").text(`Time: ${index.Time}`);
+        tooltip.select("#year").text(`Year: ${index.Year}`)
+    }
+
+    function onMouseLeave(datum,index){
+        tooltip.style('opacity',0)
+    }
 }
 drawScatterplotGraph()

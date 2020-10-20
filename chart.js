@@ -12,9 +12,6 @@ async function drawScatterplotGraph(){
     const xAccessor = d => d.Year
     const yAccessor = d => new Date(d.Seconds * 1000)
     const colorAccessor = d => d.Doping ? 1 : 0
-    console.log(dataset)
-    console.log(dataset[0].Time)
-    console.log(yAccessor(dataset[0]))
 
     //2) Create Chart Dimensions
 
@@ -61,9 +58,8 @@ async function drawScatterplotGraph(){
     
 
     const xScale = d3.scaleLinear()
-                        .domain(d3.extent(dataset,xAccessor)) 
+                        .domain([d3.min(dataset,xAccessor)-1,d3.max(dataset,xAccessor)+1]) 
                         .range([0,dimensions.boundedWidth])
-                        .nice();
 
     const colorScale = d3.scaleLinear()
                             .domain(d3.extent(dataset,colorAccessor))
@@ -151,15 +147,14 @@ async function drawScatterplotGraph(){
     function onMouseEnter(datum,index){
         const x = xScale(xAccessor(index)) + dimensions.margin.left;
         const y = yScale(yAccessor(index)) + dimensions.margin.top;
-
+        
+        //Updating tooltip styles
         tooltip.attr("data-year",index.Year)
                 .style('opacity',1)
                 .style("transform",`translate(calc(-50% + ${x}px) , calc(-118% + ${y}px) )`)
 
-
-        tooltip.select("#name")
-                .text(`${index.Name}: ${index.Nationality}`);
-
+        //Updating tooltip information
+        tooltip.select("#name").text(`${index.Name}: ${index.Nationality}`);
         tooltip.select("#time").text(`Time: ${index.Time}`);
         tooltip.select("#year").text(`Year: ${index.Year}`)
     }

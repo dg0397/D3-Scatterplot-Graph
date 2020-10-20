@@ -137,7 +137,12 @@ async function drawScatterplotGraph(){
                             .style("font-style", "italic")
                             .style("transform", "rotate(-90deg)")
                             .style("text-anchor", "middle");
+    
+    //adding legend 
 
+    const legend = d3.select('#legend')
+                            .style('transform',`translate( calc(-50% + ${dimensions.boundedWidth}px),${dimensions.boundedHeight - dimensions.margin.bottom}px)`)
+                            .style("opacity",1)
     //7) Set up Interactions
 
     dots.on("mouseenter", onMouseEnter)
